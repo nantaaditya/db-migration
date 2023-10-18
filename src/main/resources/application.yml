@@ -1,0 +1,19 @@
+server.port: ${SERVER_PORT:1000}
+
+spring:
+  application.name: db-migration
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/local_db}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASS:changeme}
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+logging:
+  level:
+    ROOT: INFO
+  file.name: logs/${LOG_NAME:db-migration.log}
+  logback.rollingpolicy.max-history: ${MAX_LOG_HISTORY:14}
+

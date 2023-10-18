@@ -1,0 +1,10 @@
+-- create table if not exists migration_version(
+--     id long,
+--     migration text,
+--     rollback text,
+--     migration_status int,
+--     created_date timestamp,
+--     execute_date timestamp,
+--     rollback_date timestamp,
+--     constraint pk_migration_version PRIMARY KEY (id)
+-- );
