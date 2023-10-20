@@ -3,6 +3,7 @@ package com.nantaaditya.dbmigration.controller;
 import com.nantaaditya.dbmigration.model.MigrationRequestDTO;
 import com.nantaaditya.dbmigration.model.MigrationResponseDTO;
 import com.nantaaditya.dbmigration.model.SchemaResponseDTO;
+import com.nantaaditya.dbmigration.model.SequenceResponseDTO;
 import com.nantaaditya.dbmigration.service.MigrationService;
 import java.util.Set;
 import javax.validation.Valid;
@@ -46,5 +47,12 @@ public class MigrationController {
   )
   public ResponseEntity<SchemaResponseDTO> schema() {
     return new ResponseEntity<>(migrationService.getSchema(), HttpStatus.OK);
+  }
+
+  @GetMapping(value = "/api/last-sequence",
+      produces = MediaType.APPLICATION_JSON_VALUE
+  )
+  public ResponseEntity<SequenceResponseDTO> lastSequence() {
+    return new ResponseEntity<>(migrationService.getLastSequence(), HttpStatus.OK);
   }
 }

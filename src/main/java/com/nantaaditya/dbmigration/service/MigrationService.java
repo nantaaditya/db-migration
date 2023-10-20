@@ -3,6 +3,7 @@ package com.nantaaditya.dbmigration.service;
 import com.nantaaditya.dbmigration.model.MigrationRequestDTO;
 import com.nantaaditya.dbmigration.model.MigrationResponseDTO;
 import com.nantaaditya.dbmigration.model.SchemaResponseDTO;
+import com.nantaaditya.dbmigration.model.SequenceResponseDTO;
 import java.util.Set;
 
 public interface MigrationService {
@@ -12,4 +13,6 @@ public interface MigrationService {
   Set<MigrationResponseDTO> runRollback(long version);
 
   SchemaResponseDTO getSchema();
+
+  SequenceResponseDTO getLastSequence();
 }

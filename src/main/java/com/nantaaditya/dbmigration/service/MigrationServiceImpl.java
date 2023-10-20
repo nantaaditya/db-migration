@@ -5,6 +5,7 @@ import com.nantaaditya.dbmigration.entity.MigrationVersion;
 import com.nantaaditya.dbmigration.model.MigrationRequestDTO;
 import com.nantaaditya.dbmigration.model.MigrationResponseDTO;
 import com.nantaaditya.dbmigration.model.SchemaResponseDTO;
+import com.nantaaditya.dbmigration.model.SequenceResponseDTO;
 import com.nantaaditya.dbmigration.repository.MigrationHistoryRepository;
 import com.nantaaditya.dbmigration.repository.MigrationVersionRepository;
 import java.sql.Connection;
@@ -21,7 +22,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class MigrationServiceImpl implements MigrationService{
+public class MigrationServiceImpl implements MigrationService {
 
   @Autowired
   private MigrationVersionRepository migrationVersionRepository;
@@ -135,5 +136,19 @@ public class MigrationServiceImpl implements MigrationService{
 
     migrationVersions.sort(Comparator.comparing(MigrationVersion::getId));
     return SchemaResponseDTO.from(migrationVersions);
+  }
+
+  @Override
+  public SequenceResponseDTO getLastSequence() {
+    MigrationVersion migrationVersion = migrationVersionRepository.findFirstByOrderByIdDesc();
+    SequenceResponseDTO response = new SequenceResponseDTO();
+
+    if (migrationVersion == null) {
+      response.setLastSequence(0);
+      return response;
+    }
+
+    response.setLastSequence(migrationVersion.getId());
+    return response;
   }
 }
