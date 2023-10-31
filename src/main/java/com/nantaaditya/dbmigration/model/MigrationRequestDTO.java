@@ -1,8 +1,8 @@
 package com.nantaaditya.dbmigration.model;
 
 import com.nantaaditya.dbmigration.validator.IdMustValid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

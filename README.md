@@ -138,6 +138,11 @@ Response Body
 curl --location 'http://localhost:1000/api/schema'
 ```
 
+## OpenAPI Swagger
+```shell
+http://localhost:1000/swagger-ui/index.html
+```
+
 ## Build Jar
 ```shell
 mvn install -DskipTests
@@ -150,5 +155,5 @@ docker build -f Dockerfile -t nantaaditya/db-migration:0.0.1 .
 
 ## Run Image
 ```shell
-docker run --env-file local.env --name db-migration -p 1000:8080 nantaaditya/db-migration:0.0.1
+docker run --env-file local.env --name db-migration -p 1000:1000 nantaaditya/db-migration:0.0.1
 ```
