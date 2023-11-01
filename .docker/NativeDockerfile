@@ -1,0 +1,13 @@
+FROM ubuntu:jammy
+
+ENV TZ=Asia/Jakarta
+
+RUN mkdir app
+RUN mkdir app/logs
+
+ADD ../target/db-migration app/app-native
+
+WORKDIR /app
+
+ENTRYPOINT ["./app-native"]
+
