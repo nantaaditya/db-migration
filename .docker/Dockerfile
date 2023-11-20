@@ -9,5 +9,5 @@ ADD ../target/*.jar app/app.jar
 
 WORKDIR /app
 
-ENTRYPOINT exec java $JAVA_OPTS -jar app.jar
+ENTRYPOINT exec java -server -XX:+UnlockExperimentalVMOptions $JAVA_OPTS -jar app.jar
 

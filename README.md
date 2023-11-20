@@ -18,7 +18,7 @@ docker build -f .docker/Dockerfile -t nantaaditya/db-migration:0.0.1 .
 
 Run Image
 ```shell
-docker run --env-file .env/local.env --name db-migration -p 1000:1000 nantaaditya/db-migration:0.0.1
+docker run --env-file .env/local.env --name db-migration -p 1000:1000 -m512m nantaaditya/db-migration:0.0.1
 ```
 
 ## Build & Deploy Native Image
