@@ -1,6 +1,8 @@
 package com.nantaaditya.dbmigration.model;
 
 import com.nantaaditya.dbmigration.entity.MigrationVersion;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,8 +19,16 @@ public class SchemaResponseDTO {
 
   public static SchemaResponseDTO from(List<MigrationVersion> mvs) {
     SchemaResponseDTO dto = new SchemaResponseDTO();
-    dto.setMigrations(mvs.stream().map(MigrationVersion::getMigration).collect(Collectors.toSet()));
-    dto.setRollbacks(mvs.stream().map(MigrationVersion::getRollback).collect(Collectors.toSet()));
+    dto.setMigrations(mvs.stream()
+        .sorted(Comparator.comparing(MigrationVersion::getId))
+        .map(MigrationVersion::getMigration)
+        .collect(Collectors.toCollection(LinkedHashSet::new))
+    );
+    dto.setRollbacks(mvs.stream()
+        .sorted(Comparator.comparing(MigrationVersion::getId))
+        .map(MigrationVersion::getRollback)
+        .collect(Collectors.toCollection(LinkedHashSet::new))
+    );
     return dto;
   }
 }
