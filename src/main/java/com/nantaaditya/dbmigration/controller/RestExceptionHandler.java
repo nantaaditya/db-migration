@@ -1,9 +1,9 @@
 package com.nantaaditya.dbmigration.controller;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
