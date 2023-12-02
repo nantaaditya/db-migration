@@ -30,5 +30,5 @@ docker buildx build -f .docker/NativeDockerfile -t nantaaditya/db-migration:0.0.
 
 Run Image
 ```shell
-docker run --env-file .env/local.env --name db-migration-native -p 1000:1000 nantaaditya/db-migration:0.0.1-native
+docker run --env-file .env/local.env --name db-migration-native -p 1000:1000 -m512m nantaaditya/db-migration:0.0.1-native
 ```

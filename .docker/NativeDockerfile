@@ -28,6 +28,15 @@ RUN --mount=type=cache,target=${MAVEN_CONFIG} mvn -X -Pnative native:compile
 # The deployment Image
 FROM docker.io/oraclelinux:9-slim
 
+MAINTAINER nantaaditya
+
+LABEL CREATOR=nantaaditya
+LABEL PROJECT_NAME=db-migration
+LABEL JDK_VERSION=17
+LABEL LINUX_DISTRIBUTION=oraclelinux
+LABEL LINUX_BUILD_VERSION=9-slim
+LABEL SPRING_VERSION=3.1.5
+
 RUN mkdir app
 RUN mkdir app/logs
 
