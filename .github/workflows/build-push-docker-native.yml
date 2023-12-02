@@ -3,7 +3,7 @@ name: Build & Push Docker Native Image
 on:
   push:
     tags:
-      - 'v.*-native'
+      - 'native.v.*'
 
 jobs:
   docker_build_push:
