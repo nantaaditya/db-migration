@@ -1,4 +1,21 @@
 # DB Migration
+A Java - PostgreSQL Schema Migrator
+
+## Environment Variables
+
+| Env Name           | Type   | Default Value                             | Description                                                                     |
+|--------------------|--------|-------------------------------------------|---------------------------------------------------------------------------------|
+| SERVER_PORT        | int    | 1000                                      | port of application                                                             |
+| DB_URL             | String | jdbc:postgresql://localhost:5432/local_db | spring datasource url of application                                            |
+| DB_USER            | String | user                                      | username of datasource                                                          |
+| DB_PASS            | String | password                                  | password of datasource                                                          |
+| LOG_NAME           | String | db-migration.log                          | log name of application                                                         |
+| MAX_LOG_HISTORY    | int    | 14                                        | log retention to be kept on disk                                                |
+| PRIVATE_KEY        | String | -                                         | RSA Private Key to decrypt encrypted value                                      |
+| PUBLIC_KEY         | String | -                                         | RSA Public Key to encrypt username, password, passphrase of database credential |
+| CREDENTIAL_PREFIX  | String | thisisprefix                              | Prefix to be add on password before doing encryption                            |
+| CREDENTIAL_POSTFIX | String | thisispostfix                             | Postfix to be add on password before doing encryption                           |
+
 
 ## OpenAPI Swagger
 ```shell

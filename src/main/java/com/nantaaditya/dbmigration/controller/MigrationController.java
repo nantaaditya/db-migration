@@ -1,12 +1,13 @@
 package com.nantaaditya.dbmigration.controller;
 
-import com.nantaaditya.dbmigration.model.MigrationRequestDTO;
-import com.nantaaditya.dbmigration.model.MigrationResponseDTO;
-import com.nantaaditya.dbmigration.model.SchemaResponseDTO;
-import com.nantaaditya.dbmigration.model.SequenceResponseDTO;
+import com.nantaaditya.dbmigration.model.request.BaseMigrationRequestDTO;
+import com.nantaaditya.dbmigration.model.request.CreateMigrationRequestDTO;
+import com.nantaaditya.dbmigration.model.request.RollbackMigrationRequestDTO;
+import com.nantaaditya.dbmigration.model.response.MigrationResponseDTO;
+import com.nantaaditya.dbmigration.model.response.SchemaResponseDTO;
+import com.nantaaditya.dbmigration.model.response.SequenceResponseDTO;
 import com.nantaaditya.dbmigration.service.MigrationService;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,41 +19,49 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
+@RequestMapping(value = "/api/migration")
 public class MigrationController {
 
   @Autowired
   private MigrationService migrationService;
 
-  @PostMapping(value = "/api/migrate",
+  @PostMapping(value = "/_migrate",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE
   )
-  public ResponseEntity<Set<MigrationResponseDTO>> migrate(@RequestBody @Valid Set<MigrationRequestDTO> requests) {
-    return new ResponseEntity<>(migrationService.runMigration(requests), HttpStatus.OK);
+  public ResponseEntity<Set<MigrationResponseDTO>> migrate(@RequestBody @Valid
+    CreateMigrationRequestDTO request) {
+    return new ResponseEntity<>(migrationService.runMigration(request), HttpStatus.OK);
   }
 
-  @DeleteMapping(value = "/api/rollback/{version}",
+  @DeleteMapping(value = "/_rollback",
       produces = MediaType.APPLICATION_JSON_VALUE
   )
-  public ResponseEntity<Set<MigrationResponseDTO>> rollback(@PathVariable @Min(value = 0, message = "must positive") long version) {
-    return new ResponseEntity<>(migrationService.runRollback(version), HttpStatus.OK);
+  public ResponseEntity<Set<MigrationResponseDTO>> rollback(@RequestBody @Valid
+    RollbackMigrationRequestDTO request) {
+    return new ResponseEntity<>(migrationService.runRollback(request), HttpStatus.OK);
   }
 
-  @GetMapping(value = "/api/schema",
+  @GetMapping(value = "/schema/{databaseId}",
       produces = MediaType.APPLICATION_JSON_VALUE
   )
-  public ResponseEntity<SchemaResponseDTO> schema() {
-    return new ResponseEntity<>(migrationService.getSchema(), HttpStatus.OK);
+  public ResponseEntity<SchemaResponseDTO> schema(@PathVariable String databaseId) {
+    BaseMigrationRequestDTO request = new BaseMigrationRequestDTO();
+    request.setDatabaseId(databaseId);
+    return new ResponseEntity<>(migrationService.getSchema(request), HttpStatus.OK);
   }
 
-  @GetMapping(value = "/api/last-sequence",
+  @GetMapping(value = "/last-sequence/{databaseId}",
       produces = MediaType.APPLICATION_JSON_VALUE
   )
-  public ResponseEntity<SequenceResponseDTO> lastSequence() {
-    return new ResponseEntity<>(migrationService.getLastSequence(), HttpStatus.OK);
+  public ResponseEntity<SequenceResponseDTO> lastSequence(@PathVariable String databaseId) {
+    BaseMigrationRequestDTO request = new BaseMigrationRequestDTO();
+    request.setDatabaseId(databaseId);
+    return new ResponseEntity<>(migrationService.getLastSequence(request), HttpStatus.OK);
   }
 }

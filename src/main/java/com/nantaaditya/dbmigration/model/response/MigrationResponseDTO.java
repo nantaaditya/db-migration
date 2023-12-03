@@ -1,4 +1,4 @@
-package com.nantaaditya.dbmigration.model;
+package com.nantaaditya.dbmigration.model.response;
 
 import com.nantaaditya.dbmigration.entity.MigrationVersion;
 import java.util.Comparator;
@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 public class MigrationResponseDTO {
 
   private long id;
+  private String databaseId;
   private String migration;
   private String rollback;
   private int status;
@@ -27,6 +28,7 @@ public class MigrationResponseDTO {
   public static MigrationResponseDTO from(MigrationVersion mv) {
     MigrationResponseDTO dto = new MigrationResponseDTO();
     dto.setId(mv.getId());
+    dto.setDatabaseId(mv.getDatabaseId());
     dto.setMigration(mv.getMigration());
     dto.setRollback(mv.getRollback());
     dto.setStatus(mv.getMigrationStatus());

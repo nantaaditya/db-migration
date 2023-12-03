@@ -8,12 +8,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target({ElementType.FIELD})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = IdMustValidValidator.class)
+@Constraint(validatedBy = MigrationIdMustValidValidator.class)
 @Documented
-public @interface IdMustValid {
-  String message() default "must valid";
+public @interface MigrationIdMustValid {
+  String message() default "NotValid";
 
   Class<?>[] groups() default { };
 

@@ -1,4 +1,4 @@
-package com.nantaaditya.dbmigration.model;
+package com.nantaaditya.dbmigration.model.response;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

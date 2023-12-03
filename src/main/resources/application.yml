@@ -14,7 +14,8 @@ spring:
     database: postgresql
     hibernate:
       dialect: org.hibernate.dialect.PostgreSQLDialect
-      ddl-auto: update
+      ddl-auto: none
+  sql.init.mode: always
 
 
 logging:
@@ -23,3 +24,8 @@ logging:
   file.name: logs/${LOG_NAME:db-migration.log}
   logback.rollingpolicy.max-history: ${MAX_LOG_HISTORY:14}
 
+credential.configuration:
+  private-key: ${PRIVATE_KEY}
+  public-key: ${PUBLIC_KEY}
+  prefix: ${CREDENTIAL_PREFIX:thisisprefix}
+  postfix: ${CREDENTIAL_POSTFIX:thisispostfix}
