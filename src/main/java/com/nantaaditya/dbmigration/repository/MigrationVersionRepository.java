@@ -8,7 +8,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MigrationVersionRepository extends JpaRepository<MigrationVersion, Long> {
 
-  List<MigrationVersion> findByIdAfterAndMigrationStatusAndRollbackDateIsNullOrderByIdDesc(long id, int migrationStatus);
+  List<MigrationVersion> findByDatabaseId(String databaseId);
 
-  MigrationVersion findFirstByOrderByIdDesc();
+  List<MigrationVersion> findByDatabaseIdAndIdAfterAndMigrationStatusAndRollbackDateIsNullOrderByIdDesc(String databaseId, long id, int migrationStatus);
+
+  MigrationVersion findFirstByDatabaseIdOrderByIdDesc(String databaseId);
 }

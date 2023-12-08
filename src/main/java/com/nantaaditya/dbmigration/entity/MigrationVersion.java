@@ -1,8 +1,9 @@
 package com.nantaaditya.dbmigration.entity;
 
-import com.nantaaditya.dbmigration.model.MigrationRequestDTO;
+import com.nantaaditya.dbmigration.model.request.CreateMigrationRequestDTO.MigrationRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -13,13 +14,13 @@ import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Data
 @Entity
 @Table(name = "migration_version")
 @NoArgsConstructor
-@EnableJpaAuditing
+@EntityListeners(AuditingEntityListener.class)
 public class MigrationVersion {
 
   public static final int CREATE_MIGRATION = 0;
@@ -38,6 +39,8 @@ public class MigrationVersion {
   @Id
   private long id;
 
+  private String databaseId;
+
   @Column(name = "migration", columnDefinition = "TEXT")
   private String migration;
 
@@ -49,12 +52,13 @@ public class MigrationVersion {
   @CreatedDate
   private LocalDateTime createdDate;
 
-  private LocalDateTime executeDate;
+  private LocalDateTime executedDate;
 
   private LocalDateTime rollbackDate;
 
-  public static MigrationVersion from(MigrationRequestDTO request) {
+  public static MigrationVersion from(String databaseId, MigrationRequest request) {
     MigrationVersion migrationVersion = new MigrationVersion();
+    migrationVersion.setDatabaseId(databaseId);
     migrationVersion.setId(request.getId());
     migrationVersion.setMigration(request.getMigration());
     migrationVersion.setRollback(request.getRollback());
@@ -63,9 +67,9 @@ public class MigrationVersion {
     return migrationVersion;
   }
 
-  public static Set<MigrationVersion> from(Set<MigrationRequestDTO> requests) {
+  public static Set<MigrationVersion> from(String databaseId, Set<MigrationRequest> requests) {
     TreeSet<MigrationVersion> mvs = requests.stream()
-        .map(MigrationVersion::from)
+        .map(r -> from(databaseId, r))
         .collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingLong(MigrationVersion::getId))));
     return mvs;
   }
@@ -77,7 +81,7 @@ public class MigrationVersion {
     }
 
     migrationVersion.setMigrationStatus(migrationStatus);
-    migrationVersion.setExecuteDate(LocalDateTime.now());
+    migrationVersion.setExecutedDate(LocalDateTime.now());
   }
 
   public static void afterRollback(MigrationVersion migrationVersion, int rollbackStatus) {

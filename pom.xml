@@ -20,6 +20,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<springdoc.version>2.1.0</springdoc.version>
+		<tsid.version>5.2.5</tsid.version>
 	</properties>
 
 	<dependencies>
@@ -49,6 +50,17 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>${springdoc.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.f4b6a3</groupId>
+			<artifactId>tsid-creator</artifactId>
+			<version>${tsid.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk18on</artifactId>
+			<version>1.77</version>
+		</dependency>
+
 
 		<dependency>
 			<groupId>org.postgresql</groupId>
