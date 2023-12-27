@@ -39,6 +39,7 @@ LABEL SPRING_VERSION=3.1.5
 
 RUN mkdir app
 RUN mkdir app/logs
+RUN mkdir app/files
 
 # Copy the native executable into the containers
 COPY --from=builder /build/target/db-migration /app

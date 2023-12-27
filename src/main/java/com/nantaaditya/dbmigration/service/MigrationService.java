@@ -9,11 +9,15 @@ import com.nantaaditya.dbmigration.model.response.SequenceResponseDTO;
 import jakarta.validation.Valid;
 import java.util.Set;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.multipart.MultipartFile;
 
 @Validated
 public interface MigrationService {
 
   Set<MigrationResponseDTO> runMigration(CreateMigrationRequestDTO request);
+
+  Set<MigrationResponseDTO> uploadMigration(String databaseId, MultipartFile migrationFile,
+      MultipartFile rollbackFile);
 
   Set<MigrationResponseDTO> runRollback(RollbackMigrationRequestDTO request);
 

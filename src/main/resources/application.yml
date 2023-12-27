@@ -2,6 +2,9 @@ server.port: ${SERVER_PORT:1000}
 
 spring:
   application.name: db-migration
+  servlet.multipart:
+    max-file-size: ${MAX_FILE_SIZE:5MB}
+    max-request-size: ${MAX_REQUEST_SIZE:5MB}
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -29,3 +32,6 @@ credential.configuration:
   public-key: ${PUBLIC_KEY}
   prefix: ${CREDENTIAL_PREFIX:thisisprefix}
   postfix: ${CREDENTIAL_POSTFIX:thisispostfix}
+
+file.configuration:
+  upload-path: ${UPLOAD_FILE_PATH:files/}

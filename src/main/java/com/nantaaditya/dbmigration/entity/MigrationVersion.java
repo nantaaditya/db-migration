@@ -1,5 +1,6 @@
 package com.nantaaditya.dbmigration.entity;
 
+import com.nantaaditya.dbmigration.model.exception.InvalidParameterException;
 import com.nantaaditya.dbmigration.model.request.CreateMigrationRequestDTO.MigrationRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -67,6 +69,16 @@ public class MigrationVersion {
     return migrationVersion;
   }
 
+  public static MigrationVersion from(String databaseId, long id, String migrationScript) {
+    MigrationVersion migrationVersion = new MigrationVersion();
+    migrationVersion.setDatabaseId(databaseId);
+    migrationVersion.setId(id);
+    migrationVersion.setMigration(migrationScript);
+    migrationVersion.setMigrationStatus(CREATE_MIGRATION);
+    migrationVersion.setCreatedDate(LocalDateTime.now());
+    return migrationVersion;
+  }
+
   public static Set<MigrationVersion> from(String databaseId, Set<MigrationRequest> requests) {
     TreeSet<MigrationVersion> mvs = requests.stream()
         .map(r -> from(databaseId, r))
@@ -92,6 +104,13 @@ public class MigrationVersion {
 
     migrationVersion.setMigrationStatus(rollbackStatus);
     migrationVersion.setRollbackDate(LocalDateTime.now());
+  }
+
+  public MigrationVersion update(String rollbackScript) {
+    if (this == null) new InvalidParameterException("data is null", Map.of("data", "NotNull"));
+
+    this.setRollback(rollbackScript);
+    return this;
   }
 
   public boolean isSuccessMigration() {

@@ -15,6 +15,9 @@ A Java - PostgreSQL Schema Migrator
 | PUBLIC_KEY         | String | -                                         | RSA Public Key to encrypt username, password, passphrase of database credential |
 | CREDENTIAL_PREFIX  | String | thisisprefix                              | Prefix to be add on password before doing encryption                            |
 | CREDENTIAL_POSTFIX | String | thisispostfix                             | Postfix to be add on password before doing encryption                           |
+| UPLOAD_FILE_PATH   | String | files/                                    | Upload file path for sql ddl file                                               |
+| MAX_FILE_SIZE      | String | 5MB                                       | max file size                                                                   |
+| MAX_UPLOAD_SIZE    | String | 5MB                                       | max upload size                                                                 |
 
 
 ## OpenAPI Swagger
