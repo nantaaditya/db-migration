@@ -59,6 +59,7 @@ public class MigrationServiceImpl implements MigrationService {
   private FilePathProperties filePathProperties;
 
   private static final String JDBC_FORMAT = "jdbc:postgresql://%s/%s";
+  private static final String NOT_VALID_ERROR = "NotValid";
 
   @Override
   public Set<MigrationResponseDTO> runMigration(CreateMigrationRequestDTO request) {
@@ -71,41 +72,7 @@ public class MigrationServiceImpl implements MigrationService {
 
     Credential credential = getDatabaseCredential(request.getDatabaseId());
 
-    Connection connection = null;
-    Statement statement = null;
-    int result = 0;
-
-
-    for (int i=0; i < migrationVersions.length; i++) {
-      MigrationVersion mv = migrationVersions[i];
-      try {
-        connection = DriverManager.getConnection(credential.host(), credential.user(), credential.password());
-        statement = connection.createStatement();
-        result = statement.executeUpdate(mv.getMigration());
-        log.info("#MIGRATION - [{}] query [{}] result [{}]", credential.name(), mv.getMigration(), result);
-
-        if (mv.isValidToMigrate()) {
-          MigrationVersion.afterMigrate(mv, MigrationVersion.SUCCESS_MIGRATION);
-        } else {
-          MigrationVersion.afterMigrate(mv, MigrationVersion.FAILED_MIGRATION);
-        }
-        migrationVersionRepository.save(mv);
-        migrationHistoryRepository.save(MigrationHistory.from(mv.getDatabaseId(), mv.getMigration(), mv.getMigrationStatus()));
-      } catch (Throwable e) {
-        log.error("#MIGRATION - [{}] query [{}] failed to execute, ", credential.name(), mv.getMigration(), e);
-        MigrationVersion.afterMigrate(mv, MigrationVersion.FAILED_MIGRATION);
-        migrationVersionRepository.save(mv);
-        migrationHistoryRepository.save(MigrationHistory.from(credential.name(), mv.getMigration(), mv.getMigrationStatus()));
-      } finally {
-        try {
-          if (statement != null) statement.close();
-          if (connection != null) connection.close();
-        } catch (Exception ex) {
-          log.error("#MIGRATION - [{}] query [{}] failed to close, ", credential.name(), mv.getMigration(), ex);
-        }
-      }
-    }
-
+    executeMigration(migrationVersions, credential);
     return MigrationResponseDTO.from(migrationVersions);
   }
 
@@ -117,8 +84,8 @@ public class MigrationServiceImpl implements MigrationService {
     if (migrationFile.isEmpty()) throw new InvalidParameterException("migration file is empty", Map.of("migrationFile", "NotNull"));
     if (rollbackFile.isEmpty()) throw new InvalidParameterException("rollback file is empty", Map.of("rollbackFile", "NotNull"));
 
-    if (isFileExtensionValid(migrationFile, "sql")) throw new InvalidParameterException("migration file is not valid", Map.of("migrationFile", "NotValid"));
-    if (isFileExtensionValid(rollbackFile, "sql")) throw new InvalidParameterException("rollback file is not valid", Map.of("rollbackFile", "NotValid"));
+    if (isFileExtensionValid(migrationFile, "sql")) throw new InvalidParameterException("migration file is not valid", Map.of("migrationFile", NOT_VALID_ERROR));
+    if (isFileExtensionValid(rollbackFile, "sql")) throw new InvalidParameterException("rollback file is not valid", Map.of("rollbackFile", NOT_VALID_ERROR));
 
     writeFile(migrationFile);
     writeFile(rollbackFile);
@@ -143,43 +110,11 @@ public class MigrationServiceImpl implements MigrationService {
       return migrationVersions;
     });
 
-    Connection connection = null;
-    Statement statement = null;
-    int result = 0;
-
     MigrationVersion[] mvs = migrationVersions.stream()
         .sorted(Comparator.comparingLong(MigrationVersion::getId))
         .toArray(MigrationVersion[]::new);
 
-    for (int i=0; i < mvs.length; i++) {
-      MigrationVersion mv = mvs[i];
-      try {
-        connection = DriverManager.getConnection(credential.host(), credential.user(), credential.password());
-        statement = connection.createStatement();
-        result = statement.executeUpdate(mv.getMigration());
-        log.info("#MIGRATION - [{}] query [{}] result [{}]", credential.name(), mv.getMigration(), result);
-
-        if (mv.isValidToMigrate()) {
-          MigrationVersion.afterMigrate(mv, MigrationVersion.SUCCESS_MIGRATION);
-        } else {
-          MigrationVersion.afterMigrate(mv, MigrationVersion.FAILED_MIGRATION);
-        }
-        migrationVersionRepository.save(mv);
-        migrationHistoryRepository.save(MigrationHistory.from(mv.getDatabaseId(), mv.getMigration(), mv.getMigrationStatus()));
-      } catch (Throwable e) {
-        log.error("#MIGRATION - [{}] query [{}] failed to execute, ", credential.name(), mv.getMigration(), e);
-        MigrationVersion.afterMigrate(mv, MigrationVersion.FAILED_MIGRATION);
-        migrationVersionRepository.save(mv);
-        migrationHistoryRepository.save(MigrationHistory.from(credential.name(), mv.getMigration(), mv.getMigrationStatus()));
-      } finally {
-        try {
-          if (statement != null) statement.close();
-          if (connection != null) connection.close();
-        } catch (Exception ex) {
-          log.error("#MIGRATION - [{}] query [{}] failed to close, ", credential.name(), mv.getMigration(), ex);
-        }
-      }
-    }
+    executeMigration(mvs, credential);
 
     return MigrationResponseDTO.from(mvs);
   }
@@ -272,7 +207,7 @@ public class MigrationServiceImpl implements MigrationService {
       Files.copy(multipartFile.getInputStream(), root.resolve(multipartFile.getOriginalFilename()));
     } catch (Exception ex) {
       log.error("#MIGRATION - failed to write file {}, ", multipartFile.getOriginalFilename(), ex);
-      throw new InvalidParameterException("failed to write file", Map.of(multipartFile.getOriginalFilename(), "NotValid"));
+      throw new InvalidParameterException("failed to write file", Map.of(multipartFile.getOriginalFilename(), NOT_VALID_ERROR));
     }
   }
 
@@ -282,10 +217,10 @@ public class MigrationServiceImpl implements MigrationService {
       Resource resource = new UrlResource(root.toUri());
       if (resource.exists() || resource.isReadable()) return resource.getFile();
 
-      throw new InvalidParameterException("failed to read file", Map.of(fileName, "NotValid"));
+      throw new InvalidParameterException("failed to read file", Map.of(fileName, NOT_VALID_ERROR));
     } catch (Exception ex) {
       log.error("#MIGRATION - failed to read file {}, ", fileName, ex);
-      throw new InvalidParameterException("failed to write file", Map.of(fileName, "NotValid"));
+      throw new InvalidParameterException("failed to write file", Map.of(fileName, NOT_VALID_ERROR));
     }
   }
 
@@ -338,7 +273,43 @@ public class MigrationServiceImpl implements MigrationService {
         .filter(f -> f.contains("."))
         .map(f -> f.substring(f.lastIndexOf(".") + 1))
         .stream()
-        .anyMatch(fileExtension -> extension.equals(fileExtension));
+        .anyMatch(extension::equals);
+  }
+
+  private void executeMigration(MigrationVersion[] mvs, Credential credential) {
+    Connection connection = null;
+    Statement statement = null;
+    int result = 0;
+
+    for (int i=0; i < mvs.length; i++) {
+      MigrationVersion mv = mvs[i];
+      try {
+        connection = DriverManager.getConnection(credential.host(), credential.user(), credential.password());
+        statement = connection.createStatement();
+        result = statement.executeUpdate(mv.getMigration());
+        log.info("#MIGRATION - [{}] query [{}] result [{}]", credential.name(), mv.getMigration(), result);
+
+        if (mv.isValidToMigrate()) {
+          MigrationVersion.afterMigrate(mv, MigrationVersion.SUCCESS_MIGRATION);
+        } else {
+          MigrationVersion.afterMigrate(mv, MigrationVersion.FAILED_MIGRATION);
+        }
+        migrationVersionRepository.save(mv);
+        migrationHistoryRepository.save(MigrationHistory.from(mv.getDatabaseId(), mv.getMigration(), mv.getMigrationStatus()));
+      } catch (Throwable e) {
+        log.error("#MIGRATION - [{}] query [{}] failed to execute, ", credential.name(), mv.getMigration(), e);
+        MigrationVersion.afterMigrate(mv, MigrationVersion.FAILED_MIGRATION);
+        migrationVersionRepository.save(mv);
+        migrationHistoryRepository.save(MigrationHistory.from(credential.name(), mv.getMigration(), mv.getMigrationStatus()));
+      } finally {
+        try {
+          if (statement != null) statement.close();
+          if (connection != null) connection.close();
+        } catch (Exception ex) {
+          log.error("#MIGRATION - [{}] query [{}] failed to close, ", credential.name(), mv.getMigration(), ex);
+        }
+      }
+    }
   }
 
   private record Credential(String name, String host, String user, String password) {
