@@ -84,8 +84,8 @@ public class MigrationServiceImpl implements MigrationService {
     if (migrationFile.isEmpty()) throw new InvalidParameterException("migration file is empty", Map.of("migrationFile", "NotNull"));
     if (rollbackFile.isEmpty()) throw new InvalidParameterException("rollback file is empty", Map.of("rollbackFile", "NotNull"));
 
-    if (isFileExtensionValid(migrationFile, "sql")) throw new InvalidParameterException("migration file is not valid", Map.of("migrationFile", NOT_VALID_ERROR));
-    if (isFileExtensionValid(rollbackFile, "sql")) throw new InvalidParameterException("rollback file is not valid", Map.of("rollbackFile", NOT_VALID_ERROR));
+    if (!isFileExtensionValid(migrationFile, "sql")) throw new InvalidParameterException("migration file is not valid", Map.of("migrationFile", NOT_VALID_ERROR));
+    if (!isFileExtensionValid(rollbackFile, "sql")) throw new InvalidParameterException("rollback file is not valid", Map.of("rollbackFile", NOT_VALID_ERROR));
 
     writeFile(migrationFile);
     writeFile(rollbackFile);
@@ -203,7 +203,9 @@ public class MigrationServiceImpl implements MigrationService {
 
   private void writeFile(MultipartFile multipartFile) {
     Path root = Paths.get(filePathProperties.getUploadPath());
+
     try {
+      if (!root.toFile().exists()) root.toFile().mkdir();
       Files.copy(multipartFile.getInputStream(), root.resolve(multipartFile.getOriginalFilename()));
     } catch (Exception ex) {
       log.error("#MIGRATION - failed to write file {}, ", multipartFile.getOriginalFilename(), ex);
@@ -242,8 +244,8 @@ public class MigrationServiceImpl implements MigrationService {
 
         if (migrationLine.endsWith(";")) {
          function.apply(sb.toString(), ++counter);
+         sb.setLength(0);
         }
-        sb.setLength(0);
       }
     } catch (Exception ex) {
       log.error("#MIGRATION - failed to add migration script, ", ex);
