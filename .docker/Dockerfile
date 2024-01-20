@@ -13,6 +13,7 @@ ENV TZ=Asia/Jakarta
 
 RUN mkdir app
 RUN mkdir app/logs
+RUN mkdir app/files
 
 ADD ../target/*.jar app/app.jar
 

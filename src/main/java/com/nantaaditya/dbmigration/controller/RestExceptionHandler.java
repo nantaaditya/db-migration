@@ -1,5 +1,6 @@
 package com.nantaaditya.dbmigration.controller;
 
+import com.nantaaditya.dbmigration.model.exception.InvalidParameterException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import java.util.HashMap;
@@ -22,6 +23,12 @@ public class RestExceptionHandler {
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<String> illegalArgument(IllegalArgumentException ex) {
     return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+  }
+
+  @ResponseBody
+  @ExceptionHandler(InvalidParameterException.class)
+  public ResponseEntity<Map<String, String>> invalidParameterException(InvalidParameterException ex) {
+    return new ResponseEntity<>(ex.getErrors(), HttpStatus.BAD_REQUEST);
   }
 
   @ResponseBody

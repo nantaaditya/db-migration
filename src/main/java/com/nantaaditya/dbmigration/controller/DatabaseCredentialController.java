@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * The DatabaseCredentialController class handles the REST endpoints related to database credentials.
+ */
 @RestController
 @Validated
 @RequestMapping(value = "/api/database-credential")
