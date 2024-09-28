@@ -33,22 +33,36 @@ mvn install -DskipTests
 
 Build Image
 ```shell
-docker build -f .docker/Dockerfile -t nantaaditya/db-migration:0.0.1 .
+docker build \
+  --build-arg APP_VERSION=1.0.0 
+  --build-arg APP_CREATED_DATE=202409281619 \
+  --build-arg APP_PORT=1000 \
+  -f .docker/Dockerfile \
+  -t nantaaditya/db-migration:1.0.0 .
+```
+
+Build Multi Stage Image
+```shell
+docker build \
+  --build-arg APP_VERSION=1.0.0 \
+  --build-arg APP_CREATED_DATE=202409281636 \
+  --build-arg APP_PORT=1000 \
+  -f .docker/Dockerfile_MultiStage \
+  -t nantaaditya/db-migration:1.0.0 .
+```
+
+Build Native Image
+```shell
+docker build \
+  --build-arg APP_VERSION=1.0.0 \
+  --build-arg APP_CREATED_DATE=202409281712 \
+  --build-arg APP_PORT=1000 \
+  -f .docker/Dockerfile_Native \
+  -t db-migration:1.0.0 .
+
 ```
 
 Run Image
 ```shell
 docker run --env-file .env/local.env --name db-migration -p 1000:1000 -m512m nantaaditya/db-migration:0.0.1
-```
-
-## Build & Deploy Native Image
-
-Build Image
-```shell
-docker buildx build -f .docker/NativeDockerfile -t nantaaditya/db-migration:0.0.1-native .
-```
-
-Run Image
-```shell
-docker run --env-file .env/local.env --name db-migration-native -p 1000:1000 -m512m nantaaditya/db-migration:0.0.1-native
 ```

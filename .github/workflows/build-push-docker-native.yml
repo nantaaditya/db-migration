@@ -25,7 +25,7 @@ jobs:
         with:
           image: nantaaditya/db-migration
           registry: docker.io
-          dockerfile: .docker/NativeDockerfile
+          dockerfile: .docker/Dockerfile_Native
           multiPlatform: true
           platform: linux/amd64,linux/arm64,linux/arm/v7
           addLatest: true
